@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
-from jose import JWTError
+import jwt
 from sqlalchemy.orm import Session
 
 from app.db.database import get_db
@@ -19,7 +19,7 @@ async def get_current_user(
     try:
         payload = decode_app_token(credentials.credentials)
         user_id = int(payload["sub"])
-    except (JWTError, KeyError, ValueError):
+    except (jwt.PyJWTError, KeyError, ValueError):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token invalide")
 
     user = db.query(User).filter(User.id == user_id).first()
